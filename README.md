@@ -49,5 +49,5 @@ const schema = {
   street: "user.address.street",
 } as const satisfies Schema<Input>;
 const reshaper = reshaperBuilder<Input, typeof schema>(schema);
-reshaper({ user: { address: { street: "home" } } }); // => { new: "home" } (Type: { new: string })
+reshaper({ user: { address: { street: "home" } } }); // => { street: "home" } (Type: { street: string })
 ```
