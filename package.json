@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Typesafe object reshaping",
   "license": "MIT",
-  "main": "lib/esm/index.js",
+  "main": "lib/cjs/index.js",
   "author": {
     "name": "Dexter Tan",
     "email": "dev@dextertanyj.com"
@@ -11,6 +11,14 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/dextertanyj/object-reshaper"
+  },
+  "exports": {
+    ".": {
+      "import": "./lib/esm/index.js",
+      "require": "./lib/cjs/index.js",
+      "types": "./lib/types/index.d.ts"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
     "prepare": "husky install",
