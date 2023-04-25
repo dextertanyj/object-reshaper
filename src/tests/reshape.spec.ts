@@ -70,6 +70,25 @@ describe("reshape", () => {
       const result: typeof expected = reshaper(data);
       expect(result).toEqual(expected);
     });
+
+    test("should support declaring new inner fields", () => {
+      const data = {
+        sub: {
+          array: [1, 2, 3],
+        },
+      };
+      const schema = {
+        new: {
+          new: "sub.array",
+        },
+      } as const satisfies Schema<typeof data>;
+      const expected = {
+        new: { new: data.sub.array },
+      };
+      const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
+      const result: typeof expected = reshaper(data);
+      expect(result).toEqual(expected);
+    });
   });
 
   describe("array access", () => {
