@@ -4,6 +4,7 @@
   "description": "TypeScript-first schema-based object transformation",
   "license": "MIT",
   "main": "lib/cjs/index.js",
+  "homepage": "https://github.com/dextertanyj/object-reshaper",
   "author": {
     "name": "Dexter Tan",
     "email": "dev@dextertanyj.com"
@@ -20,6 +21,11 @@
     },
     "./package.json": "./package.json"
   },
+  "files": [
+    "*.md",
+    "lib",
+    "src"
+  ],
   "keywords": [
     "typescript",
     "schema",
@@ -33,6 +39,7 @@
     "pre-commit": "lint-staged",
     "test": "jest",
     "test:coverage": "jest --coverage",
+    "prepack": "npm run build",
     "prebuild": "rimraf lib",
     "build": "npm run build:esm && npm run build:cjs && npm run build:types",
     "build:esm": "tsc -p tsconfig.esm.json",
@@ -41,6 +48,14 @@
     "lint": "eslint --ext ts,js .",
     "lint:fix": "eslint --fix --ext ts,js .",
     "clean": "rimraf lib && rimraf node_modules"
+  },
+  "peerDependencies": {
+    "typescript": ">=4.9"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@commitlint/cli": "^17.4.2",
