@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/dextertanyj/object-reshaper/actions/workflows/ci.yml/badge.svg)](https://github.com/dextertanyj/object-reshaper/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/dextertanyj/object-reshaper/badge.svg?branch=master)](https://coveralls.io/github/dextertanyj/object-reshaper?branch=master)
+[![Known Vulnerabilities](https://snyk.io/test/github/dextertanyj/object-reshaper/badge.svg)](https://snyk.io/test/github/dextertanyj/object-reshaper)
 
 TypeScript-first schema-based object transformation.
 
