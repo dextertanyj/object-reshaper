@@ -1,7 +1,7 @@
 {
   "name": "object-reshaper",
   "version": "0.0.0",
-  "description": "Typesafe object reshaping",
+  "description": "TypeScript-first schema-based object transformation",
   "license": "MIT",
   "main": "lib/cjs/index.js",
   "author": {
@@ -20,6 +20,14 @@
     },
     "./package.json": "./package.json"
   },
+  "keywords": [
+    "typescript",
+    "schema",
+    "type",
+    "object",
+    "mapping",
+    "transform"
+  ],
   "scripts": {
     "prepare": "husky install",
     "pre-commit": "lint-staged",
