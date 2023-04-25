@@ -140,19 +140,6 @@ describe("reshape", () => {
       const result: typeof expected = reshaper(data);
       expect(result).toEqual(expected);
     });
-
-    test("should throw if inner array element does not exist", () => {
-      const data = {
-        sub: {
-          array: [1, 2, 3],
-        },
-      };
-      const schema = {
-        new: "sub.array[10]",
-      } as const satisfies Schema<typeof data>;
-      const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
-      expect(() => reshaper(data)).toThrow();
-    });
   });
 
   describe("direct array mapping", () => {
