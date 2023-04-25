@@ -1,23 +1,31 @@
+import { ReshapeError } from "./errors";
 import { Reshaper, Schema, Transformed } from "./types";
+
+const fieldAccessorImplementation = <T>(o: T, field: string): unknown => {
+  if (typeof o !== "object" || o === null) {
+    throw new ReshapeError("FieldNotObject");
+  }
+  if (!Object.prototype.hasOwnProperty.call(o, field)) {
+    throw new ReshapeError("MissingField");
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+  return (o as any)[field] as unknown;
+};
 
 const fieldAccessor = <T>(data: T, path: string[]): unknown => {
   let field: unknown = data;
-  let fieldName = path.shift();
-  while (fieldName !== undefined) {
+  for (
+    let fieldName = path.shift();
+    fieldName !== undefined;
+    fieldName = path.shift()
+  ) {
     if (fieldName.endsWith("]")) {
       const arrayAccessor = fieldName.split("[");
       const arrayName = arrayAccessor[0];
       const arrayIndex = arrayAccessor[1].split("]")[0];
-      if (typeof field !== "object" || field === null) {
-        throw new Error(`Field is not an object`);
-      }
-      if (!Object.prototype.hasOwnProperty.call(field, arrayName)) {
-        throw new Error(`Field ${arrayName} does not exist`);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-      const array = (field as any)[arrayName] as unknown;
+      const array = fieldAccessorImplementation(field, arrayName);
       if (!Array.isArray(array)) {
-        throw new Error(`Field ${arrayName} is not an array`);
+        throw new ReshapeError("FieldNotArray");
       }
       if (arrayIndex === "*") {
         const result = array.map((item) => fieldAccessor(item, [...path]));
@@ -27,21 +35,13 @@ const fieldAccessor = <T>(data: T, path: string[]): unknown => {
         return result;
       } else {
         if (array.length < parseInt(arrayIndex)) {
-          throw new Error(`Array index ${arrayIndex} does not exist`);
+          throw new ReshapeError("ArrayIndexOutOfBounds");
         }
         return fieldAccessor(array[parseInt(arrayIndex)], path);
       }
     } else {
-      if (typeof field !== "object" || field === null) {
-        throw new Error(`Field is not an object`);
-      }
-      if (!Object.prototype.hasOwnProperty.call(field, fieldName)) {
-        throw new Error(`Field ${fieldName} does not exist`);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-      field = (field as any)[fieldName] as unknown;
+      field = fieldAccessorImplementation(field, fieldName);
     }
-    fieldName = path.shift();
   }
   return field;
 };
@@ -63,11 +63,11 @@ const objectConstructor = <T, S extends Schema<T>>(
       const subSchema = item[1] as Schema<unknown>;
       const array = fieldAccessor(data, fieldName.split("."));
       if (!Array.isArray(array)) {
-        throw new Error(`Field ${fieldName} is not an array`);
+        throw new ReshapeError("FieldNotArray");
       }
       result[key] = array.map((item: unknown) => {
         if (typeof item !== "object") {
-          throw new Error(`Field is not an object`);
+          throw new ReshapeError("FieldNotObject");
         }
         return objectConstructor(item, subSchema);
       });
