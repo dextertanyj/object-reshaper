@@ -164,7 +164,9 @@ describe("reshape", () => {
       const schema = {
         new: "sub.array[0].id",
       } as const satisfies Schema<typeof data>;
-      const expected = {
+      const expected: {
+        new: number | undefined;
+      } = {
         new: data.sub.array[0].id,
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
