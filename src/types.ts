@@ -115,6 +115,8 @@ type GetFieldType<T, P> = P extends keyof T
 export type Transformed<T, S extends Schema<T>> = {
   -readonly [Key in keyof S]: S[Key] extends string
     ? GetFieldType<T, S[Key]>
+    : S[Key] extends Schema<T>
+    ? Transformed<T, S[Key]>
     : S[Key] extends readonly [infer U, infer V]
     ? U extends string
       ? GetFieldType<T, U> extends infer W

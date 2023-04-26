@@ -87,6 +87,9 @@ describe("reshape", () => {
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
+      let typecheck = reshaper(data);
+      typecheck = expected;
+      [typecheck];
       expect(result).toEqual(expected);
     });
   });
@@ -106,6 +109,9 @@ describe("reshape", () => {
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
+      let typecheck = reshaper(data);
+      typecheck = expected;
+      [typecheck];
       expect(result).toEqual(expected);
     });
 
@@ -123,6 +129,9 @@ describe("reshape", () => {
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
+      let typecheck = reshaper(data);
+      typecheck = expected;
+      [typecheck];
       expect(result).toEqual(expected);
     });
 
@@ -140,6 +149,9 @@ describe("reshape", () => {
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
+      let typecheck = reshaper(data);
+      typecheck = expected;
+      [typecheck];
       expect(result).toEqual(expected);
     });
 
@@ -157,6 +169,9 @@ describe("reshape", () => {
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
+      let typecheck = reshaper(data);
+      typecheck = expected;
+      [typecheck];
       expect(result).toEqual(expected);
     });
   });
@@ -176,6 +191,9 @@ describe("reshape", () => {
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
+      let typecheck = reshaper(data);
+      typecheck = expected;
+      [typecheck];
       expect(result).toEqual(expected);
     });
 
@@ -193,6 +211,9 @@ describe("reshape", () => {
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
+      let typecheck = reshaper(data);
+      typecheck = expected;
+      [typecheck];
       expect(result).toEqual(expected);
     });
 
@@ -213,6 +234,9 @@ describe("reshape", () => {
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
+      let typecheck = reshaper(data);
+      typecheck = expected;
+      [typecheck];
       expect(result).toEqual(expected);
     });
 
@@ -233,6 +257,9 @@ describe("reshape", () => {
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
+      let typecheck = reshaper(data);
+      typecheck = expected;
+      [typecheck];
       expect(result).toEqual(expected);
     });
   });
@@ -257,6 +284,9 @@ describe("reshape", () => {
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
+      let typecheck = reshaper(data);
+      typecheck = expected;
+      [typecheck];
       expect(result).toEqual(expected);
     });
 
@@ -279,6 +309,9 @@ describe("reshape", () => {
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
+      let typecheck = reshaper(data);
+      typecheck = expected;
+      [typecheck];
       expect(result).toEqual(expected);
     });
 
@@ -307,6 +340,9 @@ describe("reshape", () => {
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
+      let typecheck = reshaper(data);
+      typecheck = expected;
+      [typecheck];
       expect(result).toEqual(expected);
     });
   });
