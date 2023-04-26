@@ -104,7 +104,7 @@ describe("reshape", () => {
       const schema = {
         new: "sub.array[0]",
       } as const satisfies Schema<typeof data>;
-      const expected = {
+      const expected: { new: number | undefined } = {
         new: data.sub.array[0],
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
@@ -124,7 +124,7 @@ describe("reshape", () => {
       const schema = {
         new: "sub.array[0]",
       } as const satisfies Schema<typeof data>;
-      const expected = {
+      const expected: { new: { id: number } | undefined } = {
         new: data.sub.array[0],
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
@@ -144,7 +144,7 @@ describe("reshape", () => {
       const schema = {
         new: "sub.array[1]",
       } as const satisfies Schema<typeof data>;
-      const expected = {
+      const expected: { new: { id: number } | undefined } = {
         new: data.sub.array[1],
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);

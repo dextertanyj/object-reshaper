@@ -140,7 +140,9 @@ type CheckAndGetArrayFieldType<
   V extends number | "*"
 > = T[U] extends unknown[] | undefined | null
   ? V extends number
-    ? UndefinedNullWrapper<T[U], Exclude<T[U], undefined | null>[number]>
+    ?
+        | UndefinedNullWrapper<T[U], Exclude<T[U], undefined | null>[number]>
+        | undefined
     : UndefinedNullWrapper<
         T[U],
         Exclude<Exclude<T[U], undefined | null>[number], undefined | null>[]
