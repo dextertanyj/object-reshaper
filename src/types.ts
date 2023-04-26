@@ -76,11 +76,19 @@ type ArrayChildren<
     : never
   : never;
 
+type NestedSchema<Path> = Readonly<{
+  [key: string]:
+    | Path
+    | NestedSchema<Path>
+    | SubArraySchema<ArrayTerminal<Path>, Path>;
+}>;
+
 type SubArrayDefinition<Key extends ArrayTerminal<P>, P> = {
   readonly 0: Key;
   readonly 1: Record<
     string,
     | ArrayChildren<Key, P>
+    | NestedSchema<ArrayChildren<Key, P>>
     | SubArraySchema<
         ArrayTerminal<ArrayChildren<Key, P>>,
         ArrayChildren<Key, P>
@@ -93,12 +101,7 @@ type SubArraySchema<Key extends ArrayTerminal<P>, P> = SubArrayDefinition<
   P
 >;
 
-export type Schema<T> = Readonly<{
-  [key: string]:
-    | Path<T>
-    | Schema<T>
-    | SubArraySchema<ArrayTerminal<Path<T>>, Path<T>>;
-}>;
+export type Schema<T> = NestedSchema<Path<T>>;
 
 type UndefinedNullWrapper<C, R> = [undefined | null] extends [C]
   ? R | undefined | null

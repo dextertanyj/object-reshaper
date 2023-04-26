@@ -347,5 +347,69 @@ describe("reshape", () => {
       [typecheck];
       expect(result).toEqual(expected);
     });
+
+    test("should create mapped array with nested object", () => {
+      const data = {
+        sub: {
+          array: [{ sub: { subarray: [1, 2] } }, { sub: { subarray: [3, 4] } }],
+        },
+      };
+      const schema = {
+        new: [
+          "sub.array[*]",
+          {
+            new: {
+              new: "sub.subarray[*]",
+            },
+          },
+        ],
+      } as const satisfies Schema<typeof data>;
+      const expected = {
+        new: data.sub.array.map((item) => ({
+          new: { new: item.sub.subarray },
+        })),
+      };
+      const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
+      const result: typeof expected = reshaper(data);
+      let typecheck = reshaper(data);
+      typecheck = expected;
+      [typecheck];
+      expect(result).toEqual(expected);
+    });
+
+    test("should create mapped array with nested mapped array", () => {
+      const data = {
+        sub: {
+          array: [
+            { subarray: [{ id: 1 }, { id: 2 }] },
+            { subarray: [{ id: 3 }, { id: 4 }] },
+          ],
+        },
+      };
+      const schema = {
+        new: [
+          "sub.array[*]",
+          {
+            new: [
+              "subarray[*]",
+              {
+                new: "id",
+              },
+            ],
+          },
+        ],
+      } as const satisfies Schema<typeof data>;
+      const expected = {
+        new: data.sub.array.map((item) => ({
+          new: item.subarray.map((item) => ({ new: item.id })),
+        })),
+      };
+      const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
+      const result: typeof expected = reshaper(data);
+      let typecheck = reshaper(data);
+      typecheck = expected;
+      [typecheck];
+      expect(result).toEqual(expected);
+    });
   });
 });
