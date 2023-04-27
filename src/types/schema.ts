@@ -1,7 +1,12 @@
-import { ConcreteArrayElement, ExcludeArrayKeys, IsAny } from "./utilities";
+import {
+  Defined,
+  DefinedArrayElement,
+  ExcludeArrayKeys,
+  IsAny,
+} from "./utilities";
 
 type ArrayProperty<T> = T extends unknown[] | undefined | null
-  ? ConcreteArrayElement<T> extends infer E
+  ? DefinedArrayElement<T> extends infer E
     ? E extends Record<string, unknown> | undefined | null
       ?
           | `[${number | "*"}].${PathElement<E, ExcludeArrayKeys<E>> & string}`
@@ -12,9 +17,8 @@ type ArrayProperty<T> = T extends unknown[] | undefined | null
 
 type RecordProperty<T> = T extends Record<string, unknown> | undefined | null
   ?
-      | `.${PathElement<Exclude<T, undefined | null>, ExcludeArrayKeys<T>> &
-          string}`
-      | `.${ExcludeArrayKeys<Exclude<T, undefined | null>> & string}`
+      | `.${PathElement<Defined<T>, ExcludeArrayKeys<T>> & string}`
+      | `.${ExcludeArrayKeys<Defined<T>> & string}`
   : never;
 
 type PathElement<T, Key extends keyof T> = Key extends string

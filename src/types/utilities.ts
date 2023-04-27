@@ -8,5 +8,7 @@ export type ExcludeArrayKeys<T> = T extends ArrayLike<unknown>
   ? Exclude<keyof T, keyof unknown[]>
   : keyof T;
 
-export type ConcreteArrayElement<A extends unknown[] | undefined | null> =
-  Exclude<Exclude<A, undefined | null>[number], undefined | null>;
+export type Defined<T> = Exclude<T, undefined | null>;
+
+export type DefinedArrayElement<A extends unknown[] | undefined | null> =
+  Defined<Defined<A>[number]>;
