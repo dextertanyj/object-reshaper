@@ -1,45 +1,29 @@
 import { ConcreteArrayElement, ExcludeArrayKeys, IsAny } from "./utilities";
 
-type ArrayProperty<T, Key extends keyof T & string> = T[Key] extends
-  | unknown[]
-  | undefined
-  | null
-  ? Exclude<T[Key], undefined | null>[number] extends
-      | Record<string, unknown>
-      | undefined
-      | null
-    ?
-        | `${Key}[${number | "*"}].${PathElement<
-            ConcreteArrayElement<T[Key]>,
-            ExcludeArrayKeys<ConcreteArrayElement<T[Key]>>
-          > &
-            string}`
-        | `${Key}[${number | "*"}].${ExcludeArrayKeys<
-            ConcreteArrayElement<T[Key]>
-          > &
-            string}`
-        | `${Key}[${number | "*"}]`
-        | `${Key}`
-    : `${Key}[${number | "*"}]` | `${Key}`
+type ArrayProperty<T> = T extends unknown[] | undefined | null
+  ? ConcreteArrayElement<T> extends infer E
+    ? E extends Record<string, unknown> | undefined | null
+      ?
+          | `[${number | "*"}].${PathElement<E, ExcludeArrayKeys<E>> & string}`
+          | `[${number | "*"}]`
+      : `[${number | "*"}]`
+    : never
   : never;
 
-type RecordProperty<T, Key extends keyof T & string> = T[Key] extends
-  | Record<string, unknown>
-  | undefined
-  | null
+type RecordProperty<T> = T extends Record<string, unknown> | undefined | null
   ?
-      | `${Key}.${PathElement<
-          Exclude<T[Key], undefined | null>,
-          ExcludeArrayKeys<T[Key]>
-        > &
+      | `.${PathElement<Exclude<T, undefined | null>, ExcludeArrayKeys<T>> &
           string}`
-      | `${Key}.${ExcludeArrayKeys<Exclude<T[Key], undefined | null>> & string}`
+      | `.${ExcludeArrayKeys<Exclude<T, undefined | null>> & string}`
   : never;
 
 type PathElement<T, Key extends keyof T> = Key extends string
   ? IsAny<T[Key]> extends true
     ? never
-    : ArrayProperty<T, Key> | RecordProperty<T, Key>
+    :
+        | `${Key}`
+        | `${Key}${ArrayProperty<T[Key]>}`
+        | `${Key}${RecordProperty<T[Key]>}`
   : never;
 
 type Path<T> = keyof T extends string
@@ -50,18 +34,30 @@ type Path<T> = keyof T extends string
     : keyof T
   : never;
 
-type ArrayTerminal<P> = Extract<P, `${string}[*]`>;
+type ArrayTerminal<Paths> = Extract<Paths, `${string}[*]`>;
 
 type ArrayChildren<
-  Key extends ArrayTerminal<P>,
-  P
-> = Key extends `${infer K}[*]`
-  ? P extends `${infer Left}[*].${infer Right}`
-    ? Left extends K
-      ? Right
-      : never
-    : never
-  : never;
+  ArrayPath extends ArrayTerminal<Paths>,
+  Paths
+> = Paths extends `${ArrayPath}.${infer Child}` ? Child : never;
+
+type SubArrayDefinition<Key extends ArrayTerminal<Paths>, Paths> = {
+  readonly 0: Key;
+  readonly 1: Record<
+    string,
+    | ArrayChildren<Key, Paths>
+    | NestedSchema<ArrayChildren<Key, Paths>>
+    | SubArraySchema<
+        ArrayTerminal<ArrayChildren<Key, Paths>>,
+        ArrayChildren<Key, Paths>
+      >
+  >;
+};
+
+type SubArraySchema<
+  Key extends ArrayTerminal<Paths>,
+  Paths
+> = SubArrayDefinition<Key, Paths>;
 
 type NestedSchema<Path> = Readonly<{
   [key: string]:
@@ -69,23 +65,5 @@ type NestedSchema<Path> = Readonly<{
     | NestedSchema<Path>
     | SubArraySchema<ArrayTerminal<Path>, Path>;
 }>;
-
-type SubArrayDefinition<Key extends ArrayTerminal<P>, P> = {
-  readonly 0: Key;
-  readonly 1: Record<
-    string,
-    | ArrayChildren<Key, P>
-    | NestedSchema<ArrayChildren<Key, P>>
-    | SubArraySchema<
-        ArrayTerminal<ArrayChildren<Key, P>>,
-        ArrayChildren<Key, P>
-      >
-  >;
-};
-
-type SubArraySchema<Key extends ArrayTerminal<P>, P> = SubArrayDefinition<
-  Key,
-  P
->;
 
 export type Schema<T> = NestedSchema<Path<T>>;
