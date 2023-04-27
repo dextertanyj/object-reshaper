@@ -1,4 +1,6 @@
-import { Reshaper, Schema, Transformed } from "./types";
+import { Reshaper } from "./types/core";
+import { Schema } from "./types/schema";
+import { Transformed } from "./types/transformed";
 
 const readField = <T>(o: T, field: string): unknown => {
   if (typeof o !== "object") {

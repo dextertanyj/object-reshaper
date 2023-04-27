@@ -1,4 +1,5 @@
+import { Schema } from "./types/schema";
+import { Transformed } from "./types/transformed";
 import { reshaperBuilder } from "./reshape";
-import { Schema, Transformed } from "./types";
 
 export { reshaperBuilder, Schema, Transformed };

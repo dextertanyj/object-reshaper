@@ -1,7 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
 
 import { reshaperBuilder } from "../reshape";
-import { Schema } from "../types";
+import { Schema } from "../types/schema";
 
 describe("invalid inputs", () => {
   test("should not fail for non-existent field", () => {
