@@ -1,31 +1,25 @@
 import { Schema } from "./schema";
+import { Defined, OptionalWrapper } from "./utilities";
 
-type UndefinedNullWrapper<C, R> = [undefined | null] extends [C]
-  ? R | undefined | null
-  : [undefined] extends [C]
-  ? R | undefined
-  : [null] extends [C]
-  ? R | null
-  : R;
-
-type CheckAndGetSubFieldType<T, U extends keyof T, V> = T[U] extends
+type CheckAndGetSubFieldType<T, Path> = T extends
   | Record<string, unknown>
   | undefined
   | null
-  ? UndefinedNullWrapper<T[U], GetFieldType<Exclude<T[U], undefined | null>, V>>
+  ? OptionalWrapper<T, GetFieldType<Defined<T>, Path>>
   : never;
 
-type CheckAndGetArraySubFieldType<A, V extends number | "*", P> = A extends
-  | unknown[]
-  | undefined
-  | null
-  ? Exclude<A, undefined | null>[number] extends infer O
-    ? GetFieldType<Exclude<O, undefined | null>, P> extends infer E
-      ? V extends number
-        ? UndefinedNullWrapper<O, E> | undefined
-        : P extends `${string}[*]${string | ""}`
-        ? UndefinedNullWrapper<A, E>
-        : UndefinedNullWrapper<A, E[]>
+type CheckAndGetArraySubFieldType<
+  Array,
+  Index extends number | "*",
+  Path
+> = Array extends unknown[] | undefined | null
+  ? Defined<Array>[number] extends infer E
+    ? GetFieldType<Defined<E>, Path> extends infer DefinedE
+      ? Index extends number
+        ? OptionalWrapper<E, DefinedE> | undefined
+        : Path extends `${string}[*]${string | ""}`
+        ? OptionalWrapper<Array, DefinedE>
+        : OptionalWrapper<Array, DefinedE[]>
       : never
     : never
   : never;
@@ -33,49 +27,44 @@ type CheckAndGetArraySubFieldType<A, V extends number | "*", P> = A extends
 // Guaranteed to be invoked only once in a path and is the last key.
 type CheckAndGetArrayFieldType<
   T,
-  U extends keyof T,
-  V extends number | "*"
-> = T[U] extends unknown[] | undefined | null
-  ? V extends number
-    ?
-        | UndefinedNullWrapper<T[U], Exclude<T[U], undefined | null>[number]>
-        | undefined
-    : UndefinedNullWrapper<
-        T[U],
-        Exclude<Exclude<T[U], undefined | null>[number], undefined | null>[]
-      >
+  Key extends keyof T,
+  Index extends number | "*"
+> = T[Key] extends unknown[] | undefined | null
+  ? Index extends number
+    ? OptionalWrapper<T[Key], Defined<T[Key]>[number]> | undefined
+    : OptionalWrapper<T[Key], Defined<Defined<T[Key]>[number]>[]>
   : never;
 
-type GetFieldType<T, P> = P extends keyof T
-  ? T[P]
-  : P extends `${infer U}[${infer V extends number | "*"}].${infer W}`
-  ? GetFieldType<T, U> extends infer X
-    ? CheckAndGetArraySubFieldType<X, V, W>
+type GetFieldType<T, Path> = Path extends keyof T
+  ? T[Path]
+  : Path extends `${infer PartialPath}[${infer Index extends
+      | number
+      | "*"}].${infer Rest}`
+  ? GetFieldType<T, PartialPath> extends infer Field
+    ? CheckAndGetArraySubFieldType<Field, Index, Rest>
     : never
-  : P extends `${infer U}.${infer V}`
-  ? U extends keyof T
-    ? CheckAndGetSubFieldType<T, U, V>
+  : Path extends `${infer Key}.${infer Rest}`
+  ? Key extends keyof T
+    ? CheckAndGetSubFieldType<T[Key], Rest>
     : never
-  : P extends `${infer U}[${infer V extends number | "*"}]`
-  ? U extends keyof T
-    ? CheckAndGetArrayFieldType<T, U, V>
+  : Path extends `${infer Key}[${infer Index extends number | "*"}]`
+  ? Key extends keyof T
+    ? CheckAndGetArrayFieldType<T, Key, Index>
     : never
   : T;
 
-type SubArrayTransformed<T, P extends string, V> = GetFieldType<
+type SubArrayTransformed<T, ArrayPath extends string, Value> = GetFieldType<
   T,
-  P
-> extends infer W
-  ? W extends unknown[] | undefined | null
-    ? Exclude<W, undefined | null>[number] extends infer O
-      ? Exclude<O, undefined | null> extends infer E
-        ? UndefinedNullWrapper<
-            W,
-            V extends Schema<E>
-              ? UndefinedNullWrapper<O, Transformed<E, V>>[]
-              : never
-          >
-        : never
+  ArrayPath
+> extends infer Array
+  ? Array extends unknown[] | undefined | null
+    ? Defined<Array>[number] extends infer E
+      ? OptionalWrapper<
+          Array,
+          Value extends Schema<Defined<E>>
+            ? OptionalWrapper<E, Transformed<Defined<E>, Value>>[]
+            : never
+        >
       : never
     : never
   : never;
@@ -85,12 +74,12 @@ export type Transformed<T, S extends Schema<T>> = {
     ? GetFieldType<T, S[Key]>
     : S[Key] extends Schema<T>
     ? Transformed<T, S[Key]>
-    : S[Key] extends readonly [infer U, infer V]
-    ? U extends string
-      ? SubArrayTransformed<T, U, V> extends infer X
-        ? X extends never[]
+    : S[Key] extends readonly [infer ArrayPath, infer Value]
+    ? ArrayPath extends string
+      ? SubArrayTransformed<T, ArrayPath, Value> extends infer NestedResult
+        ? NestedResult extends never[]
           ? never
-          : X
+          : NestedResult
         : never
       : never
     : never;

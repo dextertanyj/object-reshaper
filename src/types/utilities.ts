@@ -12,3 +12,11 @@ export type Defined<T> = Exclude<T, undefined | null>;
 
 export type DefinedArrayElement<A extends unknown[] | undefined | null> =
   Defined<Defined<A>[number]>;
+
+export type OptionalWrapper<Check, Result> = [undefined | null] extends [Check]
+  ? Result | undefined | null
+  : [undefined] extends [Check]
+  ? Result | undefined
+  : [null] extends [Check]
+  ? Result | null
+  : Result;
