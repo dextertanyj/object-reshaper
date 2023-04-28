@@ -45,34 +45,21 @@ type ArrayChildren<
   Paths
 > = Paths extends `${ArrayPath}.${infer Child}` ? Child : never;
 
-type SubArrayDefinition<
+type NestedArraySchema<
   Key extends ArrayTerminal<Paths>,
   Paths
 > = Key extends ArrayTerminal<Paths> // Force mapping over union type
   ? {
       readonly 0: Key;
-      readonly 1: Record<
-        string,
-        | ArrayChildren<Key, Paths>
-        | NestedSchema<ArrayChildren<Key, Paths>>
-        | SubArraySchema<
-            ArrayTerminal<ArrayChildren<Key, Paths>>,
-            ArrayChildren<Key, Paths>
-          >
-      >;
+      readonly 1: NestedSchema<ArrayChildren<Key, Paths>>;
     }
   : never;
-
-type SubArraySchema<
-  Key extends ArrayTerminal<Paths>,
-  Paths
-> = SubArrayDefinition<Key, Paths>;
 
 type NestedSchema<Path> = Readonly<{
   [key: string]:
     | Path
     | NestedSchema<Path>
-    | SubArraySchema<ArrayTerminal<Path>, Path>;
+    | NestedArraySchema<ArrayTerminal<Path>, Path>;
 }>;
 
 export type Schema<T> = NestedSchema<Path<T>>;
