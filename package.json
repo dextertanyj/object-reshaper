@@ -28,11 +28,17 @@
   ],
   "keywords": [
     "typescript",
-    "schema",
-    "type",
     "object",
+    "mapper",
     "mapping",
-    "transform"
+    "transform",
+    "transformer",
+    "convert",
+    "shape",
+    "type",
+    "schema",
+    "path",
+    "dto"
   ],
   "scripts": {
     "prepare": "husky install",
