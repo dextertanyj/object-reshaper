@@ -334,10 +334,7 @@ describe("reshape", () => {
         ],
       } as const satisfies Schema<typeof data>;
       const expected = {
-        new: [
-          { new: [{ new: 1 }, { new: 2 }] },
-          { new: [{ new: 3 }, { new: 4 }] },
-        ],
+        new: [{ new: [{ new: 1 }, { new: 2 }] }, { new: [{ new: 3 }, { new: 4 }] }],
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
@@ -379,10 +376,7 @@ describe("reshape", () => {
     test("should create mapped array with nested mapped array", () => {
       const data = {
         sub: {
-          array: [
-            { subarray: [{ id: 1 }, { id: 2 }] },
-            { subarray: [{ id: 3 }, { id: 4 }] },
-          ],
+          array: [{ subarray: [{ id: 1 }, { id: 2 }] }, { subarray: [{ id: 3 }, { id: 4 }] }],
         },
       };
       const schema = {

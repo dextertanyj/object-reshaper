@@ -516,11 +516,7 @@ describe("reshape (undefined inputs)", () => {
             )[]
           | undefined;
       } = {
-        array: [
-          undefined,
-          { id: undefined },
-          { id: { subarray: [{ id: 1 }] } },
-        ],
+        array: [undefined, { id: undefined }, { id: { subarray: [{ id: 1 }] } }],
       };
       const schema = {
         new: [

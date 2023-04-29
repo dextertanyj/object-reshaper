@@ -13,11 +13,7 @@ const readField = <T>(o: T, field: string): unknown => {
   return (o as any)[field] as unknown;
 };
 
-const handleArrayAccess = (
-  field: unknown,
-  fieldName: string,
-  path: string[]
-) => {
+const handleArrayAccess = (field: unknown, fieldName: string, path: string[]) => {
   const arrayAccessor = fieldName.split("[");
   const arrayName = arrayAccessor[0];
   const arrayIndex = arrayAccessor[1].split("]")[0];
@@ -36,11 +32,7 @@ const handleArrayAccess = (
   }
 };
 
-const handleIndexedArrayAccess = (
-  array: unknown[],
-  index: number,
-  path: string[]
-): unknown => {
+const handleIndexedArrayAccess = (array: unknown[], index: number, path: string[]): unknown => {
   if (array.length <= index) {
     return undefined;
   }
@@ -48,10 +40,7 @@ const handleIndexedArrayAccess = (
   return result;
 };
 
-const handleFlattenedArrayAccess = (
-  array: unknown[],
-  path: string[]
-): unknown[] => {
+const handleFlattenedArrayAccess = (array: unknown[], path: string[]): unknown[] => {
   if (path.length === 0) {
     return array.filter((item) => item !== undefined);
   }
@@ -76,10 +65,7 @@ const fieldAccessor = <T>(data: T, path: string[]): unknown => {
   return field;
 };
 
-const objectConstructor = <T, S extends Schema<T>>(
-  data: T,
-  schema: S
-): Transformed<T, S> => {
+const objectConstructor = <T, S extends Schema<T>>(data: T, schema: S): Transformed<T, S> => {
   const result: Record<string, unknown> = {};
 
   for (const key in schema) {
@@ -107,10 +93,11 @@ const objectConstructor = <T, S extends Schema<T>>(
   return result as Transformed<T, S>;
 };
 
-export const reshaperBuilder: <T, S extends Schema<T>>(
-  schema: S
-) => Reshaper<T, S> = <T, S extends Schema<T>>(
-  schema: S
+export const reshaperBuilder: <T, S extends Schema<T>>(schema: S) => Reshaper<T, S> = <
+  T,
+  S extends Schema<T>,
+>(
+  schema: S,
 ): ((data: T) => Transformed<T, S>) => {
   return (data: T) => objectConstructor(data, schema);
 };

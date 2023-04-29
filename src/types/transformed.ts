@@ -1,11 +1,5 @@
 import { Schema } from "./schema";
-import {
-  Contains,
-  Defined,
-  NeverArrayRemover,
-  NormalizePath,
-  OptionalWrapper,
-} from "./utilities";
+import { Contains, Defined, NeverArrayRemover, NormalizePath, OptionalWrapper } from "./utilities";
 
 export type Transformed<T, S extends Schema<T>> = {
   -readonly [Key in keyof S]: S[Key] extends string
@@ -43,17 +37,12 @@ type GetFieldType<T, Path extends string> = NormalizePath<Path> extends ""
  * @typeparam `T` - The current record type.
  * @typeparam `Path` - The path to the field.
  */
-type GetRecordFieldType<T, Path> = T extends
-  | Record<string, unknown>
-  | undefined
-  | null
+type GetRecordFieldType<T, Path> = T extends Record<string, unknown> | undefined | null
   ? Path extends "" // Preserves original optionality of T.
     ? T
     : Path extends keyof Defined<T>
     ? OptionalWrapper<T, Defined<T>[Path]>
-    : Path extends `${infer Key extends string}${
-        | "."
-        | `[${number | "*"}]`}${string}`
+    : Path extends `${infer Key extends string}${"." | `[${number | "*"}]`}${string}`
     ? Key extends keyof T // Key extends keyof T & string causes Key to take on any keyof T.
       ? Path extends `${Key}${infer Rest extends string}`
         ? OptionalWrapper<T, GetFieldType<T[Key], NormalizePath<Rest>>>
@@ -70,10 +59,7 @@ type GetRecordFieldType<T, Path> = T extends
  * @typeparam `Array` - The current array type.
  * @typeparam `Path` - The path to the field.
  */
-type GetArrayFieldType<Array, Path extends string> = Array extends
-  | unknown[]
-  | undefined
-  | null
+type GetArrayFieldType<Array, Path extends string> = Array extends unknown[] | undefined | null
   ? Path extends ""
     ? Array
     : Path extends `[${infer Index extends number | "*"}]${infer Next}`
@@ -89,12 +75,7 @@ type GetArrayFieldType<Array, Path extends string> = Array extends
  * Returns `Result` wrapped in an array if Index is a wildcard and no other wildcards are present in `Path`.
  * Adds the necessary optional modifiers to the returned type.
  */
-type WrapArrayResult<
-  Array,
-  Result,
-  Index,
-  Path extends string
-> = Index extends number
+type WrapArrayResult<Array, Result, Index, Path extends string> = Index extends number
   ? OptionalWrapper<Array, Result> | undefined
   : NormalizePath<Path> extends ""
   ? // TypeScript condenses never | T to T but does not condense never[] | T[] to T[].
@@ -114,9 +95,7 @@ type NestedArrayTransformed<T, ArrayPath extends string, Value> = GetFieldType<
         OptionalWrapper<
           Array,
           Value extends Schema<Defined<Element>>
-            ? NeverArrayRemover<
-                OptionalWrapper<Element, Transformed<Defined<Element>, Value>>[]
-              >
+            ? NeverArrayRemover<OptionalWrapper<Element, Transformed<Defined<Element>, Value>>[]>
             : never
         >
       : never
