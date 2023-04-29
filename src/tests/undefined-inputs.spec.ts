@@ -160,9 +160,9 @@ describe("reshape (undefined inputs)", () => {
         new: "array[*].id",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: (number | undefined)[];
+        new: number[];
       } = {
-        new: [undefined, 1],
+        new: [1],
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
@@ -232,9 +232,9 @@ describe("reshape (undefined inputs)", () => {
         new: "array[*].subarray",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: (number[] | undefined)[];
+        new: number[][];
       } = {
-        new: [undefined, [1]],
+        new: [[1]],
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
@@ -256,9 +256,9 @@ describe("reshape (undefined inputs)", () => {
         new: "array[*].subarray",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: ((number | undefined)[] | undefined)[];
+        new: (number | undefined)[][];
       } = {
-        new: [undefined, [undefined]],
+        new: [[undefined]],
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
@@ -280,7 +280,7 @@ describe("reshape (undefined inputs)", () => {
         new: "array[*].subarray",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: (number[] | undefined)[] | undefined;
+        new: number[][] | undefined;
       } = {
         new: undefined,
       };
@@ -330,7 +330,7 @@ describe("reshape (undefined inputs)", () => {
         new: "array[*].subarray[*]",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: number[] | undefined;
+        new: number[];
       } = {
         new: [1],
       };
@@ -354,7 +354,7 @@ describe("reshape (undefined inputs)", () => {
         new: "array[*].subarray[*]",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: number[] | undefined;
+        new: number[];
       } = {
         new: [],
       };
@@ -432,7 +432,7 @@ describe("reshape (undefined inputs)", () => {
         new: "array[*].subarray[*].subsubarray[*]",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: number[] | undefined;
+        new: number[];
       } = {
         new: [1],
       };
@@ -510,7 +510,7 @@ describe("reshape (undefined inputs)", () => {
           | (
               | {
                   id?: {
-                    subarray?: { id?: number }[];
+                    subarray?: { id: number }[];
                   };
                 }
               | undefined
@@ -532,7 +532,7 @@ describe("reshape (undefined inputs)", () => {
         ],
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: { inner: (number | undefined)[] | undefined }[] | undefined;
+        new: { inner: number[] | undefined }[] | undefined;
       } = {
         new: [{ inner: undefined }, { inner: [1] }],
       };

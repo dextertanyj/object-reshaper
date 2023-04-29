@@ -3,11 +3,8 @@ import { Schema } from "./types/schema";
 import { Transformed } from "./types/transformed";
 
 const readField = <T>(o: T, field: string): unknown => {
-  if (typeof o !== "object") {
+  if (typeof o !== "object" || o === null) {
     return undefined;
-  }
-  if (o === null) {
-    return o;
   }
   if (!Object.prototype.hasOwnProperty.call(o, field)) {
     return undefined;
@@ -25,20 +22,15 @@ const handleArrayAccess = (
   const arrayName = arrayAccessor[0];
   const arrayIndex = arrayAccessor[1].split("]")[0];
   const array = readField(field, arrayName);
-  if (array === undefined || array === null) {
-    return array;
-  }
-  if (!Array.isArray(array)) {
+  if (array === undefined || array === null || !Array.isArray(array)) {
     return undefined;
   }
   if (arrayIndex === "*") {
     const result = handleFlattenedArrayAccess(array, [...path]);
     if (path.find((item) => item.endsWith("[*]"))) {
-      return result.flatMap((item) =>
-        item === undefined || item === null ? [] : item
-      );
+      return result.flatMap((item) => (item === undefined ? [] : item));
     }
-    return result;
+    return result.filter((item) => item !== undefined);
   } else {
     return handleIndexedArrayAccess(array, parseInt(arrayIndex), [...path]);
   }
@@ -60,6 +52,9 @@ const handleFlattenedArrayAccess = (
   array: unknown[],
   path: string[]
 ): unknown[] => {
+  if (path.length === 0) {
+    return array.filter((item) => item !== undefined);
+  }
   return array
     .filter((item) => item !== undefined && item !== null)
     .map((item) => fieldAccessor(item, [...path]));

@@ -27,7 +27,7 @@ describe("reshape (null inputs)", () => {
       expect(result).toEqual(expected);
     });
 
-    test("should not fail if parent object is undefined", () => {
+    test("should not fail if parent object is null", () => {
       const data: {
         sub: {
           id: number;
@@ -39,9 +39,9 @@ describe("reshape (null inputs)", () => {
         new: "sub.id",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: number | null;
+        new: number | undefined;
       } = {
-        new: null,
+        new: undefined,
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
@@ -53,7 +53,7 @@ describe("reshape (null inputs)", () => {
   });
 
   describe("simple arrays", () => {
-    test("should not fail if element array is undefined", () => {
+    test("should not fail if element array is null", () => {
       const data: {
         array: number[] | null;
       } = {
@@ -63,9 +63,9 @@ describe("reshape (null inputs)", () => {
         new: "array[*]",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: number[] | null;
+        new: number[] | undefined;
       } = {
-        new: null,
+        new: undefined,
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
@@ -75,7 +75,7 @@ describe("reshape (null inputs)", () => {
       expect(result).toEqual(expected);
     });
 
-    test("should not fail if object array is undefined", () => {
+    test("should not fail if object array is null", () => {
       const data: {
         array:
           | {
@@ -89,9 +89,9 @@ describe("reshape (null inputs)", () => {
         new: "array[*].id",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: number[] | null;
+        new: number[] | undefined;
       } = {
-        new: null,
+        new: undefined,
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
@@ -101,7 +101,7 @@ describe("reshape (null inputs)", () => {
       expect(result).toEqual(expected);
     });
 
-    test("should not fail if array element is undefined", () => {
+    test("should not fail if array element is null", () => {
       const data: {
         array: (number | null)[];
       } = {
@@ -111,9 +111,9 @@ describe("reshape (null inputs)", () => {
         new: "array[*]",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: number[];
+        new: (number | null)[];
       } = {
-        new: [1],
+        new: [null, 1],
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
@@ -123,7 +123,7 @@ describe("reshape (null inputs)", () => {
       expect(result).toEqual(expected);
     });
 
-    test("should not fail if array object is undefined", () => {
+    test("should not fail if array object is null", () => {
       const data: {
         array: ({
           id: number;
@@ -147,7 +147,7 @@ describe("reshape (null inputs)", () => {
       expect(result).toEqual(expected);
     });
 
-    test("should not fail if field in array object is undefined", () => {
+    test("should not fail if field in array object is null", () => {
       const data: {
         array: {
           id: number | null;
@@ -173,7 +173,7 @@ describe("reshape (null inputs)", () => {
   });
 
   describe("secondary arrays", () => {
-    test("should not fail if primary array is undefined", () => {
+    test("should not fail if primary array is null", () => {
       const data: {
         array:
           | {
@@ -187,9 +187,9 @@ describe("reshape (null inputs)", () => {
         new: "array[*].subarray",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: number[][] | null;
+        new: number[][] | undefined;
       } = {
-        new: null,
+        new: undefined,
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
@@ -199,7 +199,7 @@ describe("reshape (null inputs)", () => {
       expect(result).toEqual(expected);
     });
 
-    test("should not fail if secondary array is partially undefined", () => {
+    test("should not fail if secondary array is partially null", () => {
       const data: {
         array: {
           subarray: number[] | null;
@@ -223,7 +223,7 @@ describe("reshape (null inputs)", () => {
       expect(result).toEqual(expected);
     });
 
-    test("should not fail if element in secondary array is undefined", () => {
+    test("should not fail if element in secondary array is null", () => {
       const data: {
         array: {
           subarray: (number | null)[] | null;
@@ -247,7 +247,7 @@ describe("reshape (null inputs)", () => {
       expect(result).toEqual(expected);
     });
 
-    test("should not fail if both arrays can be undefined", () => {
+    test("should not fail if both arrays can be null", () => {
       const data: {
         array:
           | {
@@ -261,9 +261,9 @@ describe("reshape (null inputs)", () => {
         new: "array[*].subarray",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: (number[] | null)[] | null;
+        new: (number[] | null)[] | undefined;
       } = {
-        new: null,
+        new: undefined,
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
@@ -275,7 +275,7 @@ describe("reshape (null inputs)", () => {
   });
 
   describe("secondary arrays with flattening", () => {
-    test("should not fail if primary array is undefined", () => {
+    test("should not fail if primary array is null", () => {
       const data: {
         array:
           | {
@@ -289,9 +289,9 @@ describe("reshape (null inputs)", () => {
         new: "array[*].subarray[*]",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: number[] | null;
+        new: number[] | undefined;
       } = {
-        new: null,
+        new: undefined,
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
@@ -301,7 +301,7 @@ describe("reshape (null inputs)", () => {
       expect(result).toEqual(expected);
     });
 
-    test("should not fail if secondary array is partially undefined", () => {
+    test("should not fail if secondary array is partially null", () => {
       const data: {
         array: {
           subarray: number[] | null;
@@ -313,7 +313,7 @@ describe("reshape (null inputs)", () => {
         new: "array[*].subarray[*]",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: number[] | null;
+        new: number[];
       } = {
         new: [1],
       };
@@ -325,7 +325,7 @@ describe("reshape (null inputs)", () => {
       expect(result).toEqual(expected);
     });
 
-    test("should not fail if element in secondary array is undefined", () => {
+    test("should not fail if element in secondary array is null", () => {
       const data: {
         array: {
           subarray: (number | null)[] | null;
@@ -337,9 +337,9 @@ describe("reshape (null inputs)", () => {
         new: "array[*].subarray[*]",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: number[] | null;
+        new: (number | null)[];
       } = {
-        new: [],
+        new: [null],
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result: typeof expected = reshaper(data);
@@ -349,7 +349,7 @@ describe("reshape (null inputs)", () => {
       expect(result).toEqual(expected);
     });
 
-    test("should not fail if both arrays can be undefined", () => {
+    test("should not fail if both arrays can be null", () => {
       const data: {
         array:
           | {
@@ -363,9 +363,9 @@ describe("reshape (null inputs)", () => {
         new: "array[*].subarray[*]",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: number[] | null;
+        new: number[] | undefined;
       } = {
-        new: null,
+        new: undefined,
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result = reshaper(data);
@@ -377,7 +377,7 @@ describe("reshape (null inputs)", () => {
   });
 
   describe("tertiary arrays", () => {
-    test("should not fail if primary array is undefined", () => {
+    test("should not fail if primary array is null", () => {
       const data: {
         array:
           | {
@@ -395,9 +395,9 @@ describe("reshape (null inputs)", () => {
         new: "array[*].subarray[*].subsubarray",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: number[][] | null;
+        new: number[][] | undefined;
       } = {
-        new: null,
+        new: undefined,
       };
       const reshaper = reshaperBuilder<typeof data, typeof schema>(schema);
       const result = reshaper(data);
@@ -407,7 +407,7 @@ describe("reshape (null inputs)", () => {
       expect(result).toEqual(expected);
     });
 
-    test("should not fail if secondary array is partially undefined", () => {
+    test("should not fail if secondary array is partially null", () => {
       const data: {
         array: {
           subarray:
@@ -423,7 +423,7 @@ describe("reshape (null inputs)", () => {
         new: "array[*].subarray[*].subsubarray[*]",
       } as const satisfies Schema<typeof data>;
       const expected: {
-        new: number[] | null;
+        new: number[];
       } = {
         new: [1],
       };
