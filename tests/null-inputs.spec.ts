@@ -1,7 +1,6 @@
 import { describe, expect, test } from "@jest/globals";
 
-import { reshaperBuilder } from "../reshape";
-import { Schema } from "../types/schema";
+import { reshaperBuilder, Schema } from "@";
 
 describe("reshape (null inputs)", () => {
   describe("basic objects", () => {
