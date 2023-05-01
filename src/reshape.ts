@@ -2,6 +2,14 @@ import { Reshaper } from "./types/core";
 import { Schema } from "./types/schema";
 import { Transformed } from "./types/transformed";
 
+const isDeclaredArrayTemplate = (template: unknown): template is [string, unknown] => {
+  return Array.isArray(template) && template.length === 2 && typeof template[0] === "string";
+};
+
+function splitPath(path: string): string[] {
+  return path.split(/\.|(\[\*\])|(\[\d+\])/g).filter((item) => item !== undefined && item !== "");
+}
+
 const readField = <T>(o: T, field: string): unknown => {
   if (typeof o !== "object" || o === null) {
     return undefined;
@@ -13,22 +21,19 @@ const readField = <T>(o: T, field: string): unknown => {
   return (o as any)[field] as unknown;
 };
 
-const handleArrayAccess = (field: unknown, fieldName: string, path: string[]) => {
-  const arrayAccessor = fieldName.split("[");
-  const arrayName = arrayAccessor[0];
-  const arrayIndex = arrayAccessor[1].split("]")[0];
-  const array = readField(field, arrayName);
+const handleArrayAccess = (array: unknown, index: string, path: string[]) => {
   if (array === undefined || array === null || !Array.isArray(array)) {
     return undefined;
   }
-  if (arrayIndex === "*") {
+  if (index === "[*]") {
+    // Copy array to avoid mutation.
     const result = handleFlattenedArrayAccess(array, [...path]);
-    if (path.find((item) => item.endsWith("[*]"))) {
+    if (path.find((item) => item === "[*]")) {
       return result.flatMap((item) => (item === undefined ? [] : item));
     }
     return result.filter((item) => item !== undefined);
   } else {
-    return handleIndexedArrayAccess(array, parseInt(arrayIndex), [...path]);
+    return handleIndexedArrayAccess(array, parseInt(index.slice(1, -1)), path);
   }
 };
 
@@ -36,7 +41,7 @@ const handleIndexedArrayAccess = (array: unknown[], index: number, path: string[
   if (array.length <= index) {
     return undefined;
   }
-  const result = fieldAccessor(array[index], [...path]);
+  const result = fieldAccessor(array[index], path);
   return result;
 };
 
@@ -44,9 +49,12 @@ const handleFlattenedArrayAccess = (array: unknown[], path: string[]): unknown[]
   if (path.length === 0) {
     return array.filter((item) => item !== undefined);
   }
-  return array
-    .filter((item) => item !== undefined && item !== null)
-    .map((item) => fieldAccessor(item, [...path]));
+  return (
+    array
+      .filter((item) => item !== undefined && item !== null)
+      // Path is used multiple times and must be copied.
+      .map((item) => fieldAccessor(item, [...path]))
+  );
 };
 
 const fieldAccessor = <T>(data: T, path: string[]): unknown => {
@@ -56,7 +64,8 @@ const fieldAccessor = <T>(data: T, path: string[]): unknown => {
     fieldName !== undefined && field !== undefined;
     fieldName = path.shift()
   ) {
-    if (fieldName.endsWith("]")) {
+    if (fieldName.match(/(\[\d+\])|(\[\*\])/g)) {
+      // Array flattening is easier to handle recursively.
       return handleArrayAccess(field, fieldName, [...path]);
     } else {
       field = readField(field, fieldName);
@@ -65,38 +74,51 @@ const fieldAccessor = <T>(data: T, path: string[]): unknown => {
   return field;
 };
 
-const objectConstructor = <T, S extends Schema<T>>(data: T, schema: S): Transformed<T, S> => {
-  const result: Record<string, unknown> = {};
+const arrayConstructor = <T>(data: T, template: [string, unknown]): unknown[] | undefined => {
+  const path = template[0];
+  const array = fieldAccessor(data, splitPath(path));
+  if (!Array.isArray(array)) {
+    return undefined;
+  }
 
+  const schema = template[1];
+  if (typeof schema === "string") {
+    return array
+      .map((item) => fieldAccessor(item, splitPath(schema)))
+      .filter((item) => item !== undefined);
+  }
+  if (typeof schema !== "object" || schema === null) {
+    return undefined;
+  }
+  if (isDeclaredArrayTemplate(schema)) {
+    return array.map((item) => arrayConstructor(item, schema)).filter((item) => item !== undefined);
+  }
+  return array
+    .map((item) => objectConstructor(item as never, schema as never))
+    .filter((item) => item !== undefined);
+};
+
+const objectConstructor = <T extends Record<string, unknown>, S extends Schema<T>>(
+  data: T,
+  schema: S,
+): Transformed<T, S> => {
+  const result: Record<string, unknown> = {};
   for (const key in schema) {
     const item = schema[key];
     if (typeof item === "string") {
-      result[key] = fieldAccessor(data, item.split("."));
+      result[key] = fieldAccessor(data, splitPath(item));
     } else if (typeof item === "object" && !Array.isArray(item)) {
-      result[key] = objectConstructor(data, item as Schema<unknown>);
-    } else {
-      const fieldName = item[0] as string;
-      const subSchema = item[1] as Schema<unknown>;
-      const array = fieldAccessor(data, fieldName.split("."));
-      if (!Array.isArray(array)) {
-        result[key] = undefined;
-      } else {
-        result[key] = array.map((item: unknown) => {
-          if (typeof item !== "object") {
-            return undefined;
-          }
-          return objectConstructor(item, subSchema);
-        });
-      }
+      result[key] = objectConstructor(data, item as never);
+    } else if (isDeclaredArrayTemplate(item)) {
+      result[key] = arrayConstructor(data, item);
     }
   }
   return result as Transformed<T, S>;
 };
 
-export const reshaperBuilder: <T, S extends Schema<T>>(schema: S) => Reshaper<T, S> = <
-  T,
-  S extends Schema<T>,
->(
+export const reshaperBuilder: <T extends Record<string, unknown>, S extends Schema<T>>(
+  schema: S,
+) => Reshaper<T, S> = <T extends Record<string, unknown>, S extends Schema<T>>(
   schema: S,
 ): ((data: T) => Transformed<T, S>) => {
   return (data: T) => objectConstructor(data, schema);

@@ -38,4 +38,14 @@ export type Contains<T extends string, U extends string> = T extends `${string}$
   ? true
   : false;
 
-export type NeverArrayRemover<T> = T extends never[] ? never : T;
+// Using Exclude<T, never[]> produces inconsistent behaviour in recursive calls to NestedArrayTransformed.
+type NeverArrayRemover<T> = T extends unknown[]
+  ? T extends (infer U)[]
+    ? [U] extends [never]
+      ? never
+      : U[]
+    : T
+  : T;
+
+// TypeScript condenses never | T to T but does not condense never[] | T[] to T[].
+export type ArrayOf<T> = NeverArrayRemover<Exclude<T, undefined>[]>;

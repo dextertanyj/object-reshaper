@@ -1,15 +1,13 @@
 import { Schema } from "./schema";
-import { Contains, Defined, NeverArrayRemover, NormalizePath, OptionalWrapper } from "./utilities";
+import { ArrayOf, Contains, Defined, NormalizePath, OptionalWrapper } from "./utilities";
 
 export type Transformed<T, S extends Schema<T>> = {
   -readonly [Key in keyof S]: S[Key] extends string
     ? GetFieldType<T, S[Key]>
     : S[Key] extends Schema<T>
     ? Transformed<T, S[Key]>
-    : S[Key] extends readonly [infer ArrayPath, infer Value]
-    ? ArrayPath extends string
-      ? NestedArrayTransformed<T, ArrayPath, Value>
-      : never
+    : S[Key] extends readonly [infer ArrayPath extends string, infer Value]
+    ? NestedArrayTransformed<T, ArrayPath, Value>
     : never;
 };
 
@@ -78,11 +76,10 @@ type GetArrayFieldType<Array, Path extends string> = Array extends unknown[] | u
 type WrapArrayResult<Array, Result, Index, Path extends string> = Index extends number
   ? OptionalWrapper<Array, Result> | undefined
   : NormalizePath<Path> extends ""
-  ? // TypeScript condenses never | T to T but does not condense never[] | T[] to T[].
-    NeverArrayRemover<OptionalWrapper<Array, Exclude<Result, undefined>[]>>
+  ? OptionalWrapper<Array, ArrayOf<Result>>
   : Contains<NormalizePath<Path>, "[*]"> extends true
   ? OptionalWrapper<Array, Exclude<Result, undefined>>
-  : NeverArrayRemover<OptionalWrapper<Array, Exclude<Result, undefined>[]>>;
+  : OptionalWrapper<Array, ArrayOf<Result>>;
 
 type NestedArrayTransformed<T, ArrayPath extends string, Value> = GetFieldType<
   T,
@@ -94,8 +91,12 @@ type NestedArrayTransformed<T, ArrayPath extends string, Value> = GetFieldType<
         // So OptionalWrapper is called before the check is performed.
         OptionalWrapper<
           Array,
-          Value extends Schema<Defined<Element>>
-            ? NeverArrayRemover<OptionalWrapper<Element, Transformed<Defined<Element>, Value>>[]>
+          Value extends string
+            ? ArrayOf<GetFieldType<Element, Value>>
+            : Value extends readonly [infer NextArrayPath extends string, infer NextValue]
+            ? ArrayOf<Exclude<NestedArrayTransformed<Element, NextArrayPath, NextValue>, undefined>>
+            : Value extends Schema<Defined<Element>>
+            ? ArrayOf<Transformed<Element, Value>>
             : never
         >
       : never
