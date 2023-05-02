@@ -7,7 +7,7 @@ export type Transformed<T, S extends Schema<T>> = {
     : S[Key] extends Schema<T>
     ? Transformed<T, S[Key]>
     : S[Key] extends readonly [infer ArrayPath extends string, infer Value]
-    ? NestedArrayTransformed<T, ArrayPath, Value>
+    ? DeclaredArrayTransformed<T, ArrayPath, Value>
     : never;
 };
 
@@ -81,7 +81,7 @@ type WrapArrayResult<Array, Result, Index, Path extends string> = Index extends 
   ? OptionalWrapper<Array, Exclude<Result, undefined>>
   : OptionalWrapper<Array, ArrayOf<Result>>;
 
-type NestedArrayTransformed<T, ArrayPath extends string, Value> = GetFieldType<
+type DeclaredArrayTransformed<T, ArrayPath extends string, Value> = GetFieldType<
   T,
   ArrayPath
 > extends infer Array
@@ -94,7 +94,9 @@ type NestedArrayTransformed<T, ArrayPath extends string, Value> = GetFieldType<
           Value extends string
             ? ArrayOf<GetFieldType<Element, Value>>
             : Value extends readonly [infer NextArrayPath extends string, infer NextValue]
-            ? ArrayOf<Exclude<NestedArrayTransformed<Element, NextArrayPath, NextValue>, undefined>>
+            ? ArrayOf<
+                Exclude<DeclaredArrayTransformed<Element, NextArrayPath, NextValue>, undefined>
+              >
             : Value extends Schema<Defined<Element>>
             ? ArrayOf<Transformed<Element, Value>>
             : never

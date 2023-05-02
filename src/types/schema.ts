@@ -54,18 +54,18 @@ type ArrayChildren<
     : never
   : never;
 
-type NestedArraySchema<Key extends ArrayTerminal<Paths>, Paths> = Key extends ArrayTerminal<Paths> // Force mapping over union type
+type DeclaredArraySchema<Key extends ArrayTerminal<Paths>, Paths> = Key extends ArrayTerminal<Paths> // Force mapping over union type
   ? {
       readonly 0: Key;
       readonly 1:
         | ArrayChildren<Key, Paths>
         | NestedSchema<ArrayChildren<Key, Paths>>
-        | NestedArraySchema<ArrayTerminal<ArrayChildren<Key, Paths>>, ArrayChildren<Key, Paths>>;
+        | DeclaredArraySchema<ArrayTerminal<ArrayChildren<Key, Paths>>, ArrayChildren<Key, Paths>>;
     }
   : never;
 
 type NestedSchema<Path> = Readonly<{
-  [key: string]: Path | NestedSchema<Path> | NestedArraySchema<ArrayTerminal<Path>, Path>;
+  [key: string]: Path | NestedSchema<Path> | DeclaredArraySchema<ArrayTerminal<Path>, Path>;
 }>;
 
 export type Schema<T> = NestedSchema<Path<T>>;
