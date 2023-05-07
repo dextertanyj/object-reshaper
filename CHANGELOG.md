@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.3.0](https://github.com/dextertanyj/object-reshaper/compare/v0.2.0...v0.3.0) (2023-05-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* improve null and undefined handling
+
+### Features
+
+* implement support for multidimensional arrays ([5a7dced](https://github.com/dextertanyj/object-reshaper/commit/5a7dceda4dd9918428d2c453c4c797ab0c5a4f66))
+* improve null and undefined handling ([9607dcd](https://github.com/dextertanyj/object-reshaper/commit/9607dcd64111ddadcddac852a51858c120905e41))
+* improve support for union input types ([a9ab9b3](https://github.com/dextertanyj/object-reshaper/commit/a9ab9b3d4635a02a5a16a1deaab9202680dffcd5))
+
+
+### Bug Fixes
+
+* isolate nested array element types to prevent path pollution ([9c4acd0](https://github.com/dextertanyj/object-reshaper/commit/9c4acd0bcb58b3b7bad34e1a6878ede68d162d33))
+
 ## [0.2.0](https://github.com/dextertanyj/object-reshaper/compare/v0.1.0...v0.2.0) (2023-04-26)
 
 
